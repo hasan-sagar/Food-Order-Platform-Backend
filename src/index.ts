@@ -14,6 +14,10 @@ app.use(cors());
 //User routes
 app.use("/api/v1/user", UserRouter);
 
+app.get("/", async (req: Request, res: Response) => {
+  res.send({ message: "Hello From API" });
+});
+
 app.get("*", async (req: Request, res: Response) => {
   res.status(404).json("No Route Found");
 });
