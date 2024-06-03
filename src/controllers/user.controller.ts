@@ -69,7 +69,7 @@ const GetLoggedInUser = async (req: Request, res: Response) => {
         message: "User Not Found",
       });
     }
-    res.status(201).json({
+    res.status(200).json({
       status: "Success",
       data: currentUser,
     });
