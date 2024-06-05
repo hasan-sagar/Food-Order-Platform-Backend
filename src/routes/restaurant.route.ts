@@ -23,4 +23,6 @@ router.post(
   restaurantController.CreateRestaurant
 );
 
+router.get("/", JwtChecker, JwtParse, restaurantController.GetRestaurant);
+
 export default router;
