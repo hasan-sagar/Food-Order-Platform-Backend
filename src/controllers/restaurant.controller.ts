@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Restaurant from "../models/restaurant.model";
 import cloudinary from "cloudinary";
 import mongoose from "mongoose";
+import { UploadImageToCloudinary } from "../helpers/ImageUpload";
 
 //create new restaurant
 const CreateRestaurant = async (req: Request, res: Response) => {
@@ -17,14 +18,12 @@ const CreateRestaurant = async (req: Request, res: Response) => {
       });
     }
 
-    const image = req.file as Express.Multer.File;
-    const base64Image = Buffer.from(image.buffer).toString("base64");
-    const dataUri = `data:${image.mimetype};base64,${base64Image}`;
-
-    const uploadImageCloud = await cloudinary.v2.uploader.upload(dataUri);
+    const imageUrl = await UploadImageToCloudinary(
+      req.file as Express.Multer.File
+    );
 
     const restaurant = new Restaurant(req.body);
-    restaurant.imageUrl = uploadImageCloud.url;
+    restaurant.imageUrl = imageUrl;
     restaurant.user = new mongoose.Types.ObjectId(req.userId);
     restaurant.lastUpdated = new Date();
     await restaurant.save();
@@ -42,13 +41,14 @@ const CreateRestaurant = async (req: Request, res: Response) => {
   }
 };
 
+//get user's restaurant
 const GetRestaurant = async (req: Request, res: Response) => {
   try {
     const restaurant = await Restaurant.findOne({
       user: req.userId,
     });
     if (!restaurant) {
-      res.status(404).json({
+      return res.status(404).json({
         status: "Error",
         message: "Restaurant not found",
       });
@@ -66,4 +66,42 @@ const GetRestaurant = async (req: Request, res: Response) => {
   }
 };
 
-export default { CreateRestaurant, GetRestaurant };
+//update restaurant
+const updateRestaurant = async (req: Request, res: Response) => {
+  try {
+    const checkRestaurantExist = await Restaurant.findOne({
+      user: req.userId,
+    });
+
+    if (!checkRestaurantExist) {
+      return res.status(404).json({
+        status: "Error",
+        message: "Restaurant not found",
+      });
+    }
+
+    checkRestaurantExist.restaurantName = req.body.restaurantName;
+    checkRestaurantExist.city = req.body.city;
+    checkRestaurantExist.country = req.body.country;
+    checkRestaurantExist.deliveryPrice = req.body.deliveryPrice;
+    checkRestaurantExist.estimatedDeliveryTime = req.body.estimatedDeliveryTime;
+    checkRestaurantExist.cuisines = req.body.ccuisines;
+    checkRestaurantExist.menuItems = req.body.menuItems;
+    checkRestaurantExist.lastUpdated = new Date();
+
+    if (req.file) {
+      const imageUrl = await UploadImageToCloudinary(
+        req.file as Express.Multer.File
+      );
+      checkRestaurantExist.imageUrl = imageUrl;
+    }
+  } catch (error) {
+    console.log(error?.toString());
+    res.status(500).json({
+      status: "Error",
+      message: "Can't update the form . Try again",
+    });
+  }
+};
+
+export default { CreateRestaurant, GetRestaurant, updateRestaurant };
