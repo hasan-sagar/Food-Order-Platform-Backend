@@ -89,6 +89,12 @@ const updateRestaurant = async (req: Request, res: Response) => {
     checkRestaurantExist.menuItems = req.body.menuItems;
     checkRestaurantExist.lastUpdated = new Date();
 
+    await checkRestaurantExist.save();
+    res.status(201).json({
+      status: "Success",
+      data: checkRestaurantExist,
+    });
+
     if (req.file) {
       const imageUrl = await UploadImageToCloudinary(
         req.file as Express.Multer.File
