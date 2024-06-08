@@ -25,4 +25,6 @@ router.post(
 
 router.get("/", JwtChecker, JwtParse, restaurantController.GetRestaurant);
 
+router.put("/", JwtParse, JwtChecker, restaurantController.updateRestaurant);
+
 export default router;
