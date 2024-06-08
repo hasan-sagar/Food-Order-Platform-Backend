@@ -85,15 +85,9 @@ const updateRestaurant = async (req: Request, res: Response) => {
     checkRestaurantExist.country = req.body.country;
     checkRestaurantExist.deliveryPrice = req.body.deliveryPrice;
     checkRestaurantExist.estimatedDeliveryTime = req.body.estimatedDeliveryTime;
-    checkRestaurantExist.cuisines = req.body.ccuisines;
+    checkRestaurantExist.cuisines = req.body.cuisines;
     checkRestaurantExist.menuItems = req.body.menuItems;
     checkRestaurantExist.lastUpdated = new Date();
-
-    await checkRestaurantExist.save();
-    res.status(201).json({
-      status: "Success",
-      data: checkRestaurantExist,
-    });
 
     if (req.file) {
       const imageUrl = await UploadImageToCloudinary(
@@ -101,6 +95,12 @@ const updateRestaurant = async (req: Request, res: Response) => {
       );
       checkRestaurantExist.imageUrl = imageUrl;
     }
+
+    await checkRestaurantExist.save();
+    res.status(201).json({
+      status: "Success",
+      data: checkRestaurantExist,
+    });
   } catch (error) {
     console.log(error?.toString());
     res.status(500).json({
