@@ -110,4 +110,79 @@ const updateRestaurant = async (req: Request, res: Response) => {
   }
 };
 
-export default { CreateRestaurant, GetRestaurant, updateRestaurant };
+//search restaurant
+const RestaurantSearch = async (req: Request, res: Response) => {
+  try {
+    const city = req.params.city;
+
+    const searchQueryKeywords = (req.query.searchQuery as string) || "";
+
+    const selectedCuisines = (req.query.selectedCuisines as string) || "";
+
+    const sortOption = (req.query.sortOption as string) || "lastUpdated";
+
+    const page = parseInt(req.query.page as string) || 1;
+
+    let query: any = {};
+
+    query["city"] = new RegExp(city, "i");
+    const checkCity = await Restaurant.countDocuments(query);
+    if (checkCity === 0) {
+      return res.status(404).json({
+        status: "Error",
+        message: "No Restaurant Found",
+      });
+    }
+
+    if (selectedCuisines) {
+      const cuisines = selectedCuisines
+        .split(",")
+        .map((cuisine) => new RegExp(cuisine, "i"));
+      query["cuisines"] = { $all: cuisines };
+    }
+
+    if (searchQueryKeywords) {
+      const searchKeyRegex = new RegExp(searchQueryKeywords, "i");
+      query["$or"] = [
+        { restaurantName: searchKeyRegex },
+        { cuisines: { $in: [searchKeyRegex] } },
+      ];
+    }
+
+    const pageSize = 10;
+    const skip = (page - 1) * pageSize;
+
+    const restaurants = await Restaurant.find(query)
+      .sort({ [sortOption]: 1 })
+      .skip(skip)
+      .limit(pageSize)
+      .lean();
+
+    const total = await Restaurant.countDocuments(query);
+
+    const response = {
+      status: "Success",
+      data: restaurants,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / pageSize),
+      },
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.log(error?.toString());
+    res.status(500).json({
+      status: "Error",
+      message: "No search result found! Try again",
+    });
+  }
+};
+
+export default {
+  CreateRestaurant,
+  GetRestaurant,
+  updateRestaurant,
+  RestaurantSearch,
+};

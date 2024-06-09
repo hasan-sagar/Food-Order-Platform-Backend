@@ -34,4 +34,6 @@ router.put(
   restaurantController.updateRestaurant
 );
 
+router.get("/search/:city", restaurantController.RestaurantSearch);
+
 export default router;
