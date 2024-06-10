@@ -180,9 +180,35 @@ const RestaurantSearch = async (req: Request, res: Response) => {
   }
 };
 
+const GetSingleRestaurant = async (req: Request, res: Response) => {
+  try {
+    const restaurantId = req.params.restaurantId;
+    const restaurant = await Restaurant.findById(restaurantId);
+
+    if (!restaurant) {
+      return res.status(404).json({
+        status: "Error",
+        message: "No Restaurant Found",
+      });
+    }
+
+    res.status(200).json({
+      status: "Success",
+      data: restaurant,
+    });
+  } catch (error) {
+    console.log(error?.toString());
+    res.status(500).json({
+      status: "Error",
+      message: "No Resraurant found",
+    });
+  }
+};
+
 export default {
   CreateRestaurant,
   GetRestaurant,
   updateRestaurant,
   RestaurantSearch,
+  GetSingleRestaurant,
 };

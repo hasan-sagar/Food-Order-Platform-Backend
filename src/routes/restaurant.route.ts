@@ -36,4 +36,6 @@ router.put(
 
 router.get("/search/:city", restaurantController.RestaurantSearch);
 
+router.get("/:restaurantId", restaurantController.GetSingleRestaurant);
+
 export default router;
