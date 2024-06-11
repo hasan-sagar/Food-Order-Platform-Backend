@@ -38,4 +38,18 @@ router.get("/search/:city", restaurantController.RestaurantSearch);
 
 router.get("/:restaurantId", restaurantController.GetSingleRestaurant);
 
+router.get(
+  "/get/orders",
+  JwtChecker,
+  JwtParse,
+  restaurantController.GetRestaurantOrders
+);
+
+router.patch(
+  "/order/:orderId/status",
+  JwtChecker,
+  JwtParse,
+  restaurantController.UpdateOrderStatus
+);
+
 export default router;
