@@ -4,6 +4,7 @@ import "dotenv/config";
 import DatabaseConnection from "./connections/database";
 import UserRouter from "./routes/user.route";
 import RestaurantRouter from "./routes/restaurant.route";
+import OrderRouter from "./routes/order.route";
 import { v2 as cloudinary } from "cloudinary";
 
 //connect to database
@@ -17,6 +18,7 @@ cloudinary.config({
 });
 
 const app = express();
+app.use("/api/v1/order/checkout/webhook", express.raw({ type: "*/*" }));
 app.use(express.json());
 app.use(cors());
 
@@ -24,6 +26,8 @@ app.use(cors());
 app.use("/api/v1/user", UserRouter);
 //Restaurant routes
 app.use("/api/v1/restaurant", RestaurantRouter);
+//order routes
+app.use("/api/v1/order", OrderRouter);
 
 app.get("/", async (req: Request, res: Response) => {
   res.send({ message: "Hello From API" });
